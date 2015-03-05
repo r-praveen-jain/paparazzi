@@ -40,13 +40,15 @@ int my_init_socket(void){
 
 int my_ReceiveControlCommand(void){
 	char n = 0;
-//	char ControlCommand[255];
-//	n = recvfrom(drone.sockfd, ControlCommand, strlen(ControlCommand),0, (struct sockaddr *)&laptop.addr, &laptop.addr_len);
-//	if (n < 0){
-//		perror("Could not send control command\n");
-//		exit(EXIT_FAILURE);
-//	}
-	printf("Thread Working\n");
+	char ControlCommand[255];
+	printf("Blocked\n");
+	n = recvfrom(drone.sockfd, ControlCommand, strlen(ControlCommand),0, (struct sockaddr *)&laptop.addr, &laptop.addr_len);
+	if (n < 0){
+		perror("Could not send control command\n");
+		exit(EXIT_FAILURE);
+	}
+	ControlCommand[n+1] = '\0';
+	printf("%s\n", ControlCommand);
 	return n;
 }
 

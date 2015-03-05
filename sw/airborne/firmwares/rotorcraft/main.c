@@ -104,22 +104,20 @@ bool event_flag = 0;
 bool exit_flag = 0;
 pthread_t control_thread;
 
-void SIGALRM_handler(){
-	event_flag = 1;
-}
+//void SIGALRM_handler(){
+//	event_flag = 1;
+//}
 
-void SIGINT_handler(){
-	exit_flag = 1;
-}
+//void SIGINT_handler(){
+//	exit_flag = 1;
+//}
 
 
 void *pthread_handler(){
-
-	while(exit_flag != 1){
-		if(event_flag == 1){
-			my_ReceiveControlCommand();
-			event_flag = 0;
-		}
+	int i = 0;
+	while(1){
+		my_ReceiveControlCommand();
+		i++;
 	}
 	pthread_exit(NULL);
 }
@@ -195,19 +193,19 @@ int main(void)
   main_init();
   // Start - Custom Communication Module
   init_pthread();
-  my_init_timer();
+  //my_init_timer();
   my_init_socket();
-  register_interrupt(SIGALRM, SIGALRM_handler);
-  register_interrupt(SIGINT, SIGINT_handler);
-  my_set_timer();
-  while(exit_flag != 1){
-		printf("%d\n",exit_flag);
+  //register_interrupt(SIGALRM, SIGALRM_handler);
+  //register_interrupt(SIGINT, SIGINT_handler);
+  //my_set_timer();
+  while(1){
+		;//printf("%d\n",exit_flag);
   }
 printf("%d\n",exit_flag);
   close_pthread();
-  clear_interrupt(SIGINT);
-  clear_interrupt(SIGALRM);
-  my_close_timer();
+  //clear_interrupt(SIGINT);
+  //clear_interrupt(SIGALRM);
+  //my_close_timer();
   my_close_socket();
 printf("Exiting Program\n");
   // End - Custom Communication Module
