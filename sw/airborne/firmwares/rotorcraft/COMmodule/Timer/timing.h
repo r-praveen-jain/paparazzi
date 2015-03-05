@@ -11,12 +11,12 @@
 #include <sys/time.h>
 #include <stdbool.h>
 extern struct itimerval main_timer;
-extern struct timespec delay;
+extern struct timespec mydelay;
 extern bool event_flag;
 
-int init_timer();
-int set_timer();
-int delay_ns(long long nanosec);
-int close_timer();
+int my_init_timer(void);
+int my_set_timer(void);
+int my_delay_ns(long long nanosec);
+int my_close_timer(void);
 
 #endif /* TIMING_H_ */

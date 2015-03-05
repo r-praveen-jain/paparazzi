@@ -14,21 +14,21 @@
 
 
 // Global Variables
-socket_t laptop, drone;
-int seqnum = 0;
-int init_socket(){
+mysocket_t laptop, drone;
+int myseqnum = 0;
+int my_init_socket(void){
 	char res;
-	laptop.addr.sin_family = DOMAIN;
+	laptop.addr.sin_family = MYDOMAIN;
 	inet_aton(LAPTOP_IP, &laptop.addr.sin_addr);
 	laptop.addr.sin_port = htons(CONTROL_PORT);
 	laptop.addr_len = sizeof(laptop.addr);
 
-	drone.addr.sin_family = DOMAIN;
+	drone.addr.sin_family = MYDOMAIN;
 	inet_aton(DRONE_IP, &drone.addr.sin_addr);
 	drone.addr.sin_port = htons(CONTROL_PORT);
 	drone.addr_len = sizeof(drone.addr);
 
-	drone.sockfd = socket(DOMAIN,TYPE,PROTOCOL);
+	drone.sockfd = socket(MYDOMAIN,TYPE,PROTOCOL);
 	res =  bind(drone.sockfd, (struct sockaddr *) &drone.addr, drone.addr_len);
 		if (res == -1){
 			perror("Socket binding failed");
@@ -38,7 +38,7 @@ int init_socket(){
 }
 
 
-int ReceiveControlCommand(){
+int my_ReceiveControlCommand(void){
 	char n = 0;
 //	char ControlCommand[255];
 //	n = recvfrom(drone.sockfd, ControlCommand, strlen(ControlCommand),0, (struct sockaddr *)&laptop.addr, &laptop.addr_len);
@@ -51,7 +51,7 @@ int ReceiveControlCommand(){
 }
 
 
-int close_socket(){
+int my_close_socket(void){
 	char res;
 	res = close(drone.sockfd);
 	if(res == -1){

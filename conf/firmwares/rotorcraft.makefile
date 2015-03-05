@@ -87,6 +87,19 @@ $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
+#############################################################################
+# Start - Custom Communication Module addition (added by Praveen Jain)
+#############################################################################
+
+$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Communication/Control_COMport.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Timer/timing.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Utilities/interrupts.c
+
+#############################################################################
+# End - Custom Communication Module addition (added by Praveen Jain)
+#############################################################################
+
+
 include $(CFG_ROTORCRAFT)/navigation.makefile
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c

@@ -14,25 +14,25 @@
 #include <arpa/inet.h>
 
 
-#define DOMAIN 			AF_INET			// used in socket() function call
+#define MYDOMAIN 			AF_INET			// used in socket() function call
 #define TYPE 			SOCK_DGRAM		// used in socket() function call
 #define PROTOCOL 		0				// used in socket() function call
 #define BACKLOG			5				// used in listen() function call
 
-typedef struct socket_t {
+typedef struct mysocket_t {
 	int sockfd;
 	struct sockaddr_in addr;
 	socklen_t addr_len;
-} socket_t;
+} mysocket_t;
 
 
 // Global Variables
-extern socket_t laptop, drone;
-extern int seqnum;
+extern mysocket_t laptop, drone;
+extern int myseqnum;
 
-int init_socket();
-int ReceiveControlCommand();
-int close_socket();
+int my_init_socket(void);
+int my_ReceiveControlCommand(void);
+int my_close_socket(void);
 
 
 #endif /* CONTROL_COMPORT_H_ */

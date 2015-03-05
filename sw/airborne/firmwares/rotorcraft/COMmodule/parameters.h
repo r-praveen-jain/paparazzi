@@ -20,7 +20,7 @@
 #define LAPTOP_IP	LOCALHOST
 #else
 #define DRONE_IP				"192.168.1.1"		// IP Address of the Drone
-#define LAPTOP_IP				"192.168.209.30"
+#define LAPTOP_IP				"192.168.1.2"
 #endif
 
 #define CONTROL_PORT			5555				// Port number for control commands

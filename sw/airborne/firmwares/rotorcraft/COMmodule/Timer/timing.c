@@ -12,9 +12,9 @@
 #include "../parameters.h"
 
 struct itimerval main_timer;
-struct timespec delay;
+struct timespec mydelay;
 
-int init_timer(){
+int my_init_timer(){
 	long long freq_microsec = (1000000/MAIN_FREQ);
 	// Timer structure for executing loop at MAIN_FREQ Hz
 	main_timer.it_value.tv_sec     =  freq_microsec / 1000000;
@@ -25,7 +25,7 @@ int init_timer(){
 	return EXIT_SUCCESS;
 }
 
-int set_timer(){
+int my_set_timer(){
 	char res;
 	printf("Setting Timer\n");
 	res = setitimer(ITIMER_REAL, &main_timer, NULL);
@@ -38,11 +38,11 @@ int set_timer(){
 }
 
 
-int delay_ns(long long nanosec){
+int my_delay_ns(long long nanosec){
 	char res;
-	delay.tv_sec = 0;
-	delay.tv_nsec = nanosec;
-	res = nanosleep(&delay,NULL);
+	mydelay.tv_sec = 0;
+	mydelay.tv_nsec = nanosec;
+	res = nanosleep(&mydelay,NULL);
 	if(res == -1){
 		perror("Delay interrupted");
 		exit(EXIT_FAILURE);
@@ -50,7 +50,7 @@ int delay_ns(long long nanosec){
 	return EXIT_SUCCESS;
 }
 
-int close_timer(){
+int my_close_timer(){
 	main_timer.it_value.tv_sec     =  0;
 	main_timer.it_value.tv_usec    =  0;
 	main_timer.it_interval.tv_sec  =  main_timer.it_value.tv_sec;

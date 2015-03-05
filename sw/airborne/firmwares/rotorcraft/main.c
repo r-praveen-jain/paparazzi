@@ -87,6 +87,67 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "mcu_periph/usb_serial.h"
 #endif
 
+
+/*----------------------------------------------------------------------------*/
+/* Start - Custom Communication Module with the offboard Controller*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <pthread.h>
+#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Timer/timing.h"
+#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Communication/Control_COMport.h"
+#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Utilities/interrupts.h"
+
+bool event_flag = 0;
+bool exit_flag = 0;
+pthread_t control_thread;
+
+void SIGALRM_handler(){
+	event_flag = 1;
+}
+
+void SIGINT_handler(){
+	exit_flag = 1;
+}
+
+
+void *pthread_handler(){
+
+	while(exit_flag != 1){
+		if(event_flag == 1){
+			my_ReceiveControlCommand();
+			event_flag = 0;
+		}
+	}
+	pthread_exit(NULL);
+}
+
+
+int init_pthread(){
+	char res;
+	res = pthread_create(&control_thread, NULL, pthread_handler,NULL);
+	if (res != 0){
+		perror("Error creating thread\n");
+		exit(EXIT_FAILURE);
+	}
+	return EXIT_SUCCESS;
+}
+
+int close_pthread(){
+	char res;
+	res = pthread_join(control_thread,NULL);
+	if(res == 0){
+		printf("Thread Joined Successfully\n");
+	}
+	return EXIT_SUCCESS;
+}
+
+/* End - Custom Communication module with the offboard Controller */
+/*-----------------------------------------------------------------*/
+
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
@@ -132,11 +193,30 @@ tid_t baro_tid;          ///< id for baro_periodic() timer
 int main(void)
 {
   main_init();
-
-  while (1) {
-    handle_periodic_tasks();
-    main_event();
+  // Start - Custom Communication Module
+  init_pthread();
+  my_init_timer();
+  my_init_socket();
+  register_interrupt(SIGALRM, SIGALRM_handler);
+  register_interrupt(SIGINT, SIGINT_handler);
+  my_set_timer();
+  while(exit_flag != 1){
+		printf("%d\n",exit_flag);
   }
+printf("%d\n",exit_flag);
+  close_pthread();
+  clear_interrupt(SIGINT);
+  clear_interrupt(SIGALRM);
+  my_close_timer();
+  my_close_socket();
+printf("Exiting Program\n");
+  // End - Custom Communication Module
+  
+//while (1) {
+  //  handle_periodic_tasks();
+  //  main_event();
+  //}
+ 
   return 0;
 }
 #endif /* SITL */
