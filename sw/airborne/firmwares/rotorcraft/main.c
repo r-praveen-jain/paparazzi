@@ -96,9 +96,9 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include <signal.h>
 #include <stdbool.h>
 #include <pthread.h>
-#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Timer/timing.h"
+//#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Timer/timing.h"
 #include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Communication/Control_COMport.h"
-#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Utilities/interrupts.h"
+//#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Utilities/interrupts.h"
 
 bool event_flag = 0;
 bool exit_flag = 0;
@@ -112,6 +112,8 @@ pthread_t control_thread;
 //	exit_flag = 1;
 //}
 
+int init_pthread(void);
+int close_pthread(void);
 
 void *pthread_handler(){
 	int i = 0;
