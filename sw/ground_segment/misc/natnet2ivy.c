@@ -65,7 +65,8 @@ char *ivy_bus                   = "127.255.255.255:2010";
 #endif
 
 /** Sample frequency and derevitive defaults */
-uint32_t freq_transmit          = 30;     ///< Transmitting frequency in Hz
+// uint32_t freq_transmit          = 30;     ///< Transmitting frequency in Hz
+uint32_t freq_transmit          = 100;     ///< Transmitting frequency in Hz (change made by praveen jain)
 uint16_t min_velocity_samples   = 4;      ///< The amount of position samples needed for a valid velocity
 
 /** Connection timeout when not receiving **/
@@ -496,6 +497,7 @@ gboolean timeout_transmit_callback(gpointer data) {
       rigidBodies[i].x, rigidBodies[i].y, rigidBodies[i].z,
       rigidBodies[i].ecef_vel.x, rigidBodies[i].ecef_vel.y, rigidBodies[i].ecef_vel.z);
 
+/*
     // Transmit the REMOTE_GPS packet on the ivy bus
     IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
       rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
@@ -511,6 +513,20 @@ gboolean timeout_transmit_callback(gpointer data) {
       (int)(rigidBodies[i].ecef_vel.z*100.0), //int32 ECEF velocity Z in cm/s
       0,
       (int)(heading*10000000.0));             //int32 Course in rad*1e7
+*/
+//########################################################################################################################
+    // Transmit the REMOTE_GPS packet on the ivy bus - Custom packet (modified by Praveen jain)
+    IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
+      rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
+      (int)(pos.x*100.0),                //int32 ECEF X in CM
+      (int)(pos.y*100.0),                //int32 ECEF Y in CM
+      (int)(pos.z*100.0),                //int32 ECEF Z in CM
+      (int)(rigidBodies[i].ecef_vel.x*100.0), //int32 ECEF velocity X in cm/s
+      (int)(rigidBodies[i].ecef_vel.y*100.0), //int32 ECEF velocity Y in cm/s
+      (int)(rigidBodies[i].ecef_vel.z*100.0)); //int32 ECEF velocity Z in cm/s
+                         
+
+//########################################################################################################################
 
     // Reset the velocity differentiator if we calculated the velocity
     if(rigidBodies[i].nVelocitySamples >= min_velocity_samples) {
