@@ -15,7 +15,11 @@
 
 // Global Variables
 mysocket_t laptop, drone;
-int myseqnum = 0;
+myrefcommand_t myrefcommand = {.thrust = 0, .phi = 0, .theta = 0};
+
+unsigned int myseqnum = 0;
+
+//Function definition
 int my_init_socket(void){
 	char res;
 	laptop.addr.sin_family = MYDOMAIN;
@@ -37,19 +41,47 @@ int my_init_socket(void){
 	return EXIT_SUCCESS;
 }
 
+// Static function used in my_ReceiveControlCommand function
+
+static inline int depacketizeControlCommand(unsigned char *cmd){
+	unsigned char *ptr = cmd; // Why another pointer variable called ptr and why not use cmd. Good question!
+	int return_flag;
+	if (*ptr == 0xFF){
+		ptr++;
+		switch (*ptr){
+			case 0xFE: // if control command
+				myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
+				ptr += 2; 
+			 	myrefcommand.thrust = (*(ptr+1))*FMAX/MAX_CMD;
+				myrefcommand.phi    = MY_DEG2RAD((  (*(ptr+2))*2*PHI_MAX/MAX_CMD  )  -  PHI_MAX);
+				myrefcommand.theta  = MY_DEG2RAD((  (*(ptr+3))*2*THETA_MAX/MAX_CMD  )  -  THETA_MAX);
+				return_flag = EXIT_SUCCESS;				
+				break;
+			default: return_flag = EXIT_FAILURE;
+				break;
+		}
+	}
+	else{
+		return_flag = EXIT_FAILURE;
+	}
+	return return_flag;
+}
+
 
 int my_ReceiveControlCommand(void){
 	char n = 0;
-	char ControlCommand[255];
+	unsigned char ControlCommand[10]; // 10 is arbitrary. Dirty implementation
+	int return_flag;
 	printf("Blocked\n");
 	n = recvfrom(drone.sockfd, ControlCommand, strlen(ControlCommand),0, (struct sockaddr *)&laptop.addr, &laptop.addr_len);
 	if (n < 0){
 		perror("Could not send control command\n");
 		exit(EXIT_FAILURE);
 	}
-	ControlCommand[n+1] = '\0';
-	printf("%s\n", ControlCommand);
-	return n;
+	//ControlCommand[n] = '\0';
+	//printf("%d\n", ControlCommand);
+	return_flag = depacketizeControlCommand(ControlCommand);
+        return return_flag;
 }
 
 

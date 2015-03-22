@@ -96,30 +96,25 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include <signal.h>
 #include <stdbool.h>
 #include <pthread.h>
-//#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Timer/timing.h"
 #include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Communication/Control_COMport.h"
-//#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Utilities/interrupts.h"
+#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/my_autopilot.h"
 
-bool event_flag = 0;
-bool exit_flag = 0;
 pthread_t control_thread;
-
-//void SIGALRM_handler(){
-//	event_flag = 1;
-//}
-
-//void SIGINT_handler(){
-//	exit_flag = 1;
-//}
+bool control_cmd_flag = 0;
 
 int init_pthread(void);
 int close_pthread(void);
 
 void *pthread_handler(){
-	int i = 0;
+	int return_flag;
 	while(1){
-		my_ReceiveControlCommand();
-		i++;
+		return_flag = my_ReceiveControlCommand();
+		if(return_flag == EXIT_SUCCESS){		
+		control_cmd_flag = 1;
+		}
+		else{
+			printf("Error receiving control command\n");
+		}
 	}
 	pthread_exit(NULL);
 }
@@ -193,30 +188,17 @@ tid_t baro_tid;          ///< id for baro_periodic() timer
 int main(void)
 {
   main_init();
-  // Start - Custom Communication Module
+  // Start - Custom Communication Module---------------------------------------
   init_pthread();
-  //my_init_timer();
-  my_init_socket();
-  //register_interrupt(SIGALRM, SIGALRM_handler);
-  //register_interrupt(SIGINT, SIGINT_handler);
-  //my_set_timer();
+  my_init_socket();  
   while(1){
-		;//printf("%d\n",exit_flag);
+    handle_periodic_tasks();
+    main_event();
   }
-printf("%d\n",exit_flag);
   close_pthread();
-  //clear_interrupt(SIGINT);
-  //clear_interrupt(SIGALRM);
-  //my_close_timer();
   my_close_socket();
-printf("Exiting Program\n");
-  // End - Custom Communication Module
-  
-//while (1) {
-  //  handle_periodic_tasks();
-  //  main_event();
-  //}
- 
+  printf("Exiting Program\n");
+  // End - Custom Communication Module-----------------------------------------
   return 0;
 }
 #endif /* SITL */
@@ -248,8 +230,10 @@ STATIC_INLINE void main_init(void)
   gps_init();
 #endif
 
-  autopilot_init();
-
+//##################################################################################
+  //autopilot_init();
+  my_autopilot_init(); // Custom autopilot module
+//##################################################################################
   modules_init();
 
   settings_init();
@@ -305,7 +289,10 @@ STATIC_INLINE void main_periodic(void)
   imu_periodic();
 
   /* run control loops */
-  autopilot_periodic();
+//###########################################################################  
+  //autopilot_periodic();
+  my_autopilot_periodic();
+//###########################################################################
   /* set actuators     */
   //actuators_set(autopilot_motors_on);
   SetActuatorsFromCommands(commands, autopilot_mode);
