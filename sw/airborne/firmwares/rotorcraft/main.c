@@ -111,6 +111,7 @@ void *pthread_handler(){
 		return_flag = my_ReceiveControlCommand();
 		if(return_flag == EXIT_SUCCESS){		
 		control_cmd_flag = 1;
+		printf("%d %f %f %f\n",myseqnum, myrefcommand.thrust, myrefcommand.phi, myrefcommand.theta);
 		}
 		else{
 			printf("Error receiving control command\n");
@@ -191,7 +192,7 @@ int main(void)
   // Start - Custom Communication Module---------------------------------------
   init_pthread();
   my_init_socket();  
-  while(1){
+  while(1){ 
     handle_periodic_tasks();
     main_event();
   }

@@ -52,7 +52,8 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 			case 0xFE: // if control command
 				myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
 				ptr += 2; 
-			 	myrefcommand.thrust = (*(ptr+1))*FMAX/MAX_CMD;
+			 	//myrefcommand.thrust = (*(ptr+1))*FMAX/MAX_CMD;
+				myrefcommand.thrust = (*(ptr+1))*96;
 				myrefcommand.phi    = MY_DEG2RAD((  (*(ptr+2))*2*PHI_MAX/MAX_CMD  )  -  PHI_MAX);
 				myrefcommand.theta  = MY_DEG2RAD((  (*(ptr+3))*2*THETA_MAX/MAX_CMD  )  -  THETA_MAX);
 				return_flag = EXIT_SUCCESS;				
@@ -73,13 +74,12 @@ int my_ReceiveControlCommand(void){
 	unsigned char ControlCommand[10]; // 10 is arbitrary. Dirty implementation
 	int return_flag;
 	printf("Blocked\n");
-	n = recvfrom(drone.sockfd, ControlCommand, strlen(ControlCommand),0, (struct sockaddr *)&laptop.addr, &laptop.addr_len);
+	n = recvfrom(drone.sockfd, ControlCommand, 10,0, (struct sockaddr *)&laptop.addr, &laptop.addr_len);
 	if (n < 0){
-		perror("Could not send control command\n");
+		perror("Could not receive control command\n");
 		exit(EXIT_FAILURE);
 	}
-	//ControlCommand[n] = '\0';
-	//printf("%d\n", ControlCommand);
+	//printf("%d %d %d %d %d %d %d %d\n", n, ControlCommand[0], ControlCommand[1], ControlCommand[2], ControlCommand[3], ControlCommand[4], ControlCommand[5], ControlCommand[6]);
 	return_flag = depacketizeControlCommand(ControlCommand);
         return return_flag;
 }

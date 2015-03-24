@@ -29,7 +29,7 @@ typedef struct myrefcommand_t{
 	double thrust;
 	double phi;			// roll
 	double theta;			// pitch	
-} myrefcommand;				// Structure to store the depacketized control command
+} myrefcommand_t;				// Structure to store the depacketized control command
 
 // Global Variables
 extern mysocket_t laptop, drone;

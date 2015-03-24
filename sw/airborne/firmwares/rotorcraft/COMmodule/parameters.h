@@ -41,6 +41,7 @@
 #define PSI_REF				  0	// Set reference yaw to zero
 
 #define MAX_CMD_SIZE		          7
+#define MAX_CMD				200
 
 #define MY_RAD2DEG(x)	        	((x)*180/3.14159)
 #define MY_DEG2RAD(x)			((x)*3.14159/180)

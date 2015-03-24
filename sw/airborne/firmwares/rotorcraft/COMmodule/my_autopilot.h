@@ -5,8 +5,8 @@
 #include "generated/airframe.h"
 
 extern bool control_cmd_flag;
-extern bool autopilot_motors_on;
-extern bool autopilot_in_flight;
+extern bool my_autopilot_motors_on;
+extern bool my_autopilot_in_flight;
 
 extern void my_autopilot_init(void);
 extern void my_autopilot_periodic(void);

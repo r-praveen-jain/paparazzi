@@ -93,6 +93,7 @@ $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Communication/Control_COMport.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Timer/timing.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/my_autopilot.c
 #$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Utilities/interrupts.c
 
 #############################################################################
