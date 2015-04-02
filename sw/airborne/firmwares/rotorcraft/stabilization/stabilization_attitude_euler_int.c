@@ -34,6 +34,7 @@
 #include "paparazzi.h"
 #include "math/pprz_algebra_int.h"
 #include "state.h"
+#include <stdio.h>
 
 struct Int32AttitudeGains  stabilization_gains;
 
@@ -265,5 +266,5 @@ void stabilization_attitude_run(bool_t  in_flight)
   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
   BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
-
+  //printf("%d %d %d\n", stabilization_cmd[COMMAND_ROLL],stabilization_cmd[COMMAND_PITCH],stabilization_cmd[COMMAND_YAW]);
 }

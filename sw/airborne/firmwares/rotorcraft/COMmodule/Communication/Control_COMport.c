@@ -7,6 +7,7 @@
 
 #include "Control_COMport.h"
 #include "../parameters.h"
+#include "firmwares/rotorcraft/autopilot.h" //for autopilot_motors_on
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -52,11 +53,17 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 			case 0xFE: // if control command
 				myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
 				ptr += 2; 
-			 	//myrefcommand.thrust = (*(ptr+1))*FMAX/MAX_CMD;
-				myrefcommand.thrust = (*(ptr+1))*96;
-				myrefcommand.phi    = MY_DEG2RAD((  (*(ptr+2))*2*PHI_MAX/MAX_CMD  )  -  PHI_MAX);
-				myrefcommand.theta  = MY_DEG2RAD((  (*(ptr+3))*2*THETA_MAX/MAX_CMD  )  -  THETA_MAX);
+			 	myrefcommand.thrust = (*(ptr+1)<<8) | *(ptr+2); // In PPRZ units
+				myrefcommand.phi    = MY_DEG2RAD((  (*(ptr+3))*2*PHI_MAX/MAX_CMD  )  -  PHI_MAX);
+				myrefcommand.theta  = MY_DEG2RAD((  (*(ptr+4))*2*THETA_MAX/MAX_CMD  )  -  THETA_MAX);
 				return_flag = EXIT_SUCCESS;				
+				break;
+			case 0xFF: //if autopilot_motors_on
+				myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
+				ptr += 2;
+				if(*(ptr+1) == 0){autopilot_motors_on = 0;}
+				else if(*(ptr+1) == 255){autopilot_motors_on = 1;}
+				return_flag = EXIT_SUCCESS;
 				break;
 			default: return_flag = EXIT_FAILURE;
 				break;
@@ -72,7 +79,7 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 int my_ReceiveControlCommand(void){
 	char n = 0;
 	unsigned char ControlCommand[10]; // 10 is arbitrary. Dirty implementation
-	int return_flag;
+	int return_flag = 0;
 	printf("Blocked\n");
 	n = recvfrom(drone.sockfd, ControlCommand, 10,0, (struct sockaddr *)&laptop.addr, &laptop.addr_len);
 	if (n < 0){
