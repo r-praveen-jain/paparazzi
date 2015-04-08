@@ -5,7 +5,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
-      <configure name="USE_MAGNETOMETER" value="0"/>
+      <configure name="USE_MAGNETOMETER" value="1"/>
 
       <subsystem name="telemetry" type="transparent_udp"/>
       <subsystem name="radio_control" type="datalink"/>
@@ -26,6 +26,14 @@
     <subsystem name="ins" type="extended"/>
   </firmware>
 
+  <modules main_freq="500">
+    <!--load name="send_imu_mag_current.xml"/>
+    <load name="follow.xml">
+      <define name="FOLLOW_AC_ID" value="101"/>
+      <define name="FOLLOW_WAYPOINT_ID" value="WP_p1"/>
+      <define name="FOLLOW_OFFSET_Z" value="2.0"/>
+    </load-->
+  </modules>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -70,12 +78,13 @@
     <define name="ACCEL_Z_NEUTRAL" value="2048"/>
 
     <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="0"/>
-    <define name="MAG_Y_NEUTRAL" value="0"/>
-    <define name="MAG_Z_NEUTRAL" value="-180"/>
-    <define name="MAG_X_SENS" value="16." integer="16"/>
-    <define name="MAG_Y_SENS" value="16." integer="16"/>
-    <define name="MAG_Z_SENS" value="16." integer="16"/>
+<define name="MAG_X_NEUTRAL" value="45"/>
+<define name="MAG_Y_NEUTRAL" value="-1"/>
+<define name="MAG_Z_NEUTRAL" value="-168"/>
+<define name="MAG_X_SENS" value="13.7738016551" integer="16"/>
+<define name="MAG_Y_SENS" value="14.743867324" integer="16"/>
+<define name="MAG_Z_SENS" value="14.8867747934" integer="16"/>
+
 
     <!-- Magneto current calibration -->
     <define name="MAG_X_CURRENT_COEF" value="0.0"/>
@@ -100,7 +109,7 @@
     <define name="H_Z" value="0.9211303"/>
 
     <!-- Use GPS heading instead of magneto -->
-    <define name="USE_GPS_HEADING" value="1"/> 
+    <!--define name="USE_GPS_HEADING" value="1"/--> 
   </section>
 
   <section name="INS" prefix="INS_">

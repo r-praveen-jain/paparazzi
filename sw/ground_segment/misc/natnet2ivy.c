@@ -65,8 +65,8 @@ char *ivy_bus                   = "127.255.255.255:2010";
 #endif
 
 /** Sample frequency and derevitive defaults */
- uint32_t freq_transmit          = 30;     ///< Transmitting frequency in Hz
-//uint32_t freq_transmit          = 100;     ///< Transmitting frequency in Hz (change made by praveen jain)
+ //uint32_t freq_transmit          = 30;     ///< Transmitting frequency in Hz
+uint32_t freq_transmit          = 100;     ///< Transmitting frequency in Hz (change made by praveen jain)
 uint16_t min_velocity_samples   = 4;      ///< The amount of position samples needed for a valid velocity
 
 /** Connection timeout when not receiving **/
@@ -447,6 +447,10 @@ gboolean timeout_transmit_callback(gpointer data) {
 
     // Defines to make easy use of paparazzi math
     struct EnuCoor_d pos, speed;
+    //##################################################################################################################
+    struct EnuCoor_d mpc_pos = {0};
+    struct EnuCoor_d mpc_speed = {0}; // Added by Praveen Jain
+    //##################################################################################################################
     struct EcefCoor_d ecef_pos;
     struct LlaCoor_d lla_pos;
     struct DoubleQuat orient;
@@ -456,6 +460,14 @@ gboolean timeout_transmit_callback(gpointer data) {
     pos.x = cos(tracking_offset_angle) * rigidBodies[i].x + sin(tracking_offset_angle) * rigidBodies[i].y;
     pos.y = sin(tracking_offset_angle) * rigidBodies[i].x - cos(tracking_offset_angle) * rigidBodies[i].y;
     pos.z = rigidBodies[i].z;
+    
+    //##################################################################################################################
+    // ENU Optitrack coordinates (Added by Praveen Jain) -- tracking_offset_angle = 0 (angle to true north)
+    mpc_pos.x =  rigidBodies[i].x;
+    mpc_pos.y = -rigidBodies[i].y;
+    mpc_pos.z =  rigidBodies[i].z;
+    //##################################################################################################################
+
 
     // Convert the position to ecef and lla based on the Optitrack LTP
     ecef_of_enu_point_d(&ecef_pos ,&tracking_ltp ,&pos);
@@ -475,6 +487,12 @@ gboolean timeout_transmit_callback(gpointer data) {
       speed.x = cos(tracking_offset_angle) * rigidBodies[i].vel_x + sin(tracking_offset_angle) * rigidBodies[i].vel_y;
       speed.y = sin(tracking_offset_angle) * rigidBodies[i].vel_x - cos(tracking_offset_angle) * rigidBodies[i].vel_y;
       speed.z = rigidBodies[i].vel_z;
+      //##################################################################################################################
+      // ENU Optitrack coordinates (Added by Praveen Jain) -- tracking_offset_angle = 0 (angle to true north)
+      mpc_speed.x =  rigidBodies[i].vel_x;
+      mpc_speed.y = -rigidBodies[i].vel_y;
+      mpc_speed.z =  rigidBodies[i].vel_z;
+      //##################################################################################################################
 
       // Conver the speed to ecef based on the Optitrack LTP
       ecef_of_enu_vect_d(&rigidBodies[i].ecef_vel ,&tracking_ltp ,&speed);
@@ -513,20 +531,20 @@ gboolean timeout_transmit_callback(gpointer data) {
       (int)(rigidBodies[i].ecef_vel.z*100.0), //int32 ECEF velocity Z in cm/s
       0,
       (int)(heading*10000000.0));             //int32 Course in rad*1e7
-/*
+
 //########################################################################################################################
     // Transmit the REMOTE_GPS packet on the ivy bus - Custom packet (modified by Praveen jain)
-    IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
-      rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
-      (int)(pos.x*100.0),                //int32 ECEF X in CM
-      (int)(pos.y*100.0),                //int32 ECEF Y in CM
-      (int)(pos.z*100.0),                //int32 ECEF Z in CM
-      (int)(rigidBodies[i].ecef_vel.x*100.0), //int32 ECEF velocity X in cm/s
-      (int)(rigidBodies[i].ecef_vel.y*100.0), //int32 ECEF velocity Y in cm/s
-      (int)(rigidBodies[i].ecef_vel.z*100.0)); //int32 ECEF velocity Z in cm/s
+    IvySendMsg("MPC_GPS %d,%d,%d,%d,%d,%d,%d,%d", aircrafts[rigidBodies[i].id].ac_id,
+      rigidBodies[i].nMarkers,               //uint8 Number of markers (sv_num)
+      (int)(mpc_pos.x*1000.0),                //int32 X in mm - Optitrack coordinates
+      (int)(mpc_pos.y*1000.0),                //int32 Y in mm - Optitrack coordinates
+      (int)(mpc_pos.z*1000.0),                //int32 Z in mm - Optitrack coordinates
+      (int)(mpc_speed.x*1000.0), 	     //int32 velocity X in mm/s - Optitrack coordinates
+      (int)(mpc_speed.y*1000.0), //int32 velocity Y in mm/s - Optitrack coordinates
+      (int)(mpc_speed.z*1000.0)); //int32 velocity Z in mm/s - optirack coordinates
                          
 
-//########################################################################################################################*/
+//########################################################################################################################
 
     // Reset the velocity differentiator if we calculated the velocity
     if(rigidBodies[i].nVelocitySamples >= min_velocity_samples) {

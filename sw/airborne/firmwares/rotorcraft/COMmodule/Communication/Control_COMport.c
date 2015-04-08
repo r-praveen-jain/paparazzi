@@ -54,8 +54,10 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 				myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
 				ptr += 2; 
 			 	myrefcommand.thrust = (*(ptr+1)<<8) | *(ptr+2); // In PPRZ units
-				myrefcommand.phi    = MY_DEG2RAD((  (*(ptr+3))*2*PHI_MAX/MAX_CMD  )  -  PHI_MAX);
-				myrefcommand.theta  = MY_DEG2RAD((  (*(ptr+4))*2*THETA_MAX/MAX_CMD  )  -  THETA_MAX);
+				ptr += 2;
+				myrefcommand.phi    = ((*(ptr+1)<<8) | *(ptr+2))/1000; // In radians - floating point
+				ptr += 2;
+				myrefcommand.theta  = ((*(ptr+1)<<8) | *(ptr+2))/1000; // In radians - floating point
 				return_flag = EXIT_SUCCESS;				
 				break;
 			case 0xFF: //if autopilot_motors_on

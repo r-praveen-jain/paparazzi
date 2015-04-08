@@ -8,22 +8,13 @@
 #ifndef PARAMETERS_H_
 #define PARAMETERS_H_
 
-// Defines related to the controller
-//#define DEBUG_MODE
+
 // Defines for UDP Communication with the Drone
-#define MAIN_FREQ				10					// Frequency in Hertz
+#define MAIN_FREQ 10
+#define DRONE_IP 	"192.168.1.1"		// IP Address of the Drone
+#define LAPTOP_IP 	"192.168.1.3"
 
-#define LOCALHOST				"127.0.0.1"
-
-#ifdef DEBUG_MODE
-#define DRONE_IP	LOCALHOST
-#define LAPTOP_IP	LOCALHOST
-#else
-#define DRONE_IP				"192.168.1.1"		// IP Address of the Drone
-#define LAPTOP_IP				"192.168.1.2"
-#endif
-
-#define CONTROL_PORT			5555				// Port number for control commands
+#define CONTROL_PORT	5555			// Port number for control commands
 
 
 // Defines related to the depacketization of control commands
@@ -40,7 +31,7 @@
 #define PSI_MAX				 50     // Maximum roll in degrees
 #define PSI_REF				  0	// Set reference yaw to zero
 
-#define MAX_CMD_SIZE		          7
+#define MAX_CMD_SIZE		         10
 #define MAX_CMD				200
 
 #define MY_RAD2DEG(x)	        	((x)*180/3.14159)
