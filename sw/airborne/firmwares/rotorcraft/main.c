@@ -111,7 +111,7 @@ void *pthread_handler(){
 		return_flag = my_ReceiveControlCommand();
 		if(return_flag == EXIT_SUCCESS){		
 		control_cmd_flag = 1;
-		printf("%d %f %f %f\n",myseqnum, myrefcommand.thrust, myrefcommand.phi, myrefcommand.theta);
+		//printf("%d %f %f %f\n",myseqnum, myrefcommand.thrust, myrefcommand.phi, myrefcommand.theta);
 		}
 		else{
 			printf("Error receiving control command\n");

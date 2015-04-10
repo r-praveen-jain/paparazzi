@@ -26,14 +26,14 @@
     <subsystem name="ins" type="extended"/>
   </firmware>
 
-  <modules main_freq="500">
-    <!--load name="send_imu_mag_current.xml"/>
+  <!--modules main_freq="500">
+    <load name="send_imu_mag_current.xml"/>
     <load name="follow.xml">
       <define name="FOLLOW_AC_ID" value="101"/>
       <define name="FOLLOW_WAYPOINT_ID" value="WP_p1"/>
       <define name="FOLLOW_OFFSET_Z" value="2.0"/>
-    </load-->
-  </modules>
+    </load>
+  </modules-->
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

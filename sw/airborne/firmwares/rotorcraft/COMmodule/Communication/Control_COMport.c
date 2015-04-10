@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 
 // Global Variables
@@ -55,9 +56,9 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 				ptr += 2; 
 			 	myrefcommand.thrust = (*(ptr+1)<<8) | *(ptr+2); // In PPRZ units
 				ptr += 2;
-				myrefcommand.phi    = ((*(ptr+1)<<8) | *(ptr+2))/1000; // In radians - floating point
+				myrefcommand.phi    = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // In radians - floating point
 				ptr += 2;
-				myrefcommand.theta  = ((*(ptr+1)<<8) | *(ptr+2))/1000; // In radians - floating point
+				myrefcommand.theta  = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // In radians - floating point
 				return_flag = EXIT_SUCCESS;				
 				break;
 			case 0xFF: //if autopilot_motors_on
