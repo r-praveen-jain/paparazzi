@@ -52,27 +52,10 @@ $(TARGET).srcs   += $(SRC_ARCH)/mcu_arch.c
 PERIODIC_FREQUENCY ?= 512
 $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 
-ifdef AHRS_PROPAGATE_FREQUENCY
-$(TARGET).CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
-endif
-
-ifdef AHRS_CORRECT_FREQUENCY
-$(TARGET).CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
-endif
-
-ifdef AHRS_MAG_CORRECT_FREQUENCY
-$(TARGET).CFLAGS += -DAHRS_MAG_CORRECT_FREQUENCY=$(AHRS_MAG_CORRECT_FREQUENCY)
-endif
-
-
 #
 # Systime
 #
 $(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
-ifeq ($(ARCH), linux)
-# seems that we need to link against librt for glibc < 2.17
-$(TARGET).LDFLAGS += -lrt
-endif
 
 
 #
@@ -103,6 +86,20 @@ $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
+
+#############################################################################
+# Start - Custom Communication Module addition (added by Praveen Jain)
+#############################################################################
+
+$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Communication/Control_COMport.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/my_autopilot.c
+#$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Utilities/interrupts.c
+#$(TARGET).srcs += $(SRC_FIRMWARE)/COMmodule/Timer/timing.c
+
+#############################################################################
+# End - Custom Communication Module addition (added by Praveen Jain)
+#############################################################################
+
 
 include $(CFG_ROTORCRAFT)/navigation.makefile
 

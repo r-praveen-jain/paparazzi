@@ -21,32 +21,28 @@
 #
 
 #
-# Makefile for generic linux targets
-# Normally don't use this makefile directly, but rather Makefile.arm-linux or Makefile.bbb
+# Makefile for linux targets (e.g. OMAP, BBB, ARDrone)
 #
 
-# Define some default programs and commands (if not already set by e.g. Makefile.arm-linux
-CC  ?= gcc
-CXX ?= g++
-LD  ?= $(CC)
+#
+# find compiler toolchain
+#
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
+
+# Define programs and commands.
 
 # Launch with "make Q=''" to get full command display
 Q=@
 
 OPT ?= 3
-DEBUG_INFO ?= n
-CSTANDARD ?= -std=gnu99
+CSTANDARD = -std=gnu99
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
-#
-# Common compiler flags.
-# add then to arch specific CFLAGS already defined in e.g. Makefile.arm-linux
-#
-ifneq ($(DEBUG_INFO),n)
-CFLAGS += -g
-endif
+FLOAT_ABI = -mfloat-abi=softfp -mfpu=vfp
+
+# Compiler flags.
 CFLAGS += $(CINCS)
-CFLAGS += -O$(OPT) -fPIC
+CFLAGS += -O$(OPT) $(FLOAT_ABI) -mtune=cortex-a8 -march=armv7-a
 CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
@@ -56,7 +52,7 @@ CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
-CFLAGS += -lm -pthread
+CFLAGS += -lm
 
 # flags only for C
 CFLAGS += -Wstrict-prototypes -Wmissing-declarations
@@ -65,11 +61,18 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS)
 
-LDFLAGS += -lm -pthread
+LDFLAGS += -lm $(FLOAT_ABI)
+LDFLAGS += -lpthread
+########################################################
+# Modified by Praveen Jain  (added pthread lib)
+########################################################
+# LDFLAGS += -lm $(FLOAT_ABI) -- This the original line of makefile
+# LDFLAGS += -lm $(FLOAT_ABI) -lpthread
+########################################################
 
-CXXFLAGS += -O$(OPT) -fPIC
-CXXFLAGS += -pipe -fshow-column -ffast-math
+CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -fPIC
 CXXFLAGS += -g -ffunction-sections -fdata-sections
+CXXFLAGS += $(FLOAT_ABI) -mtune=cortex-a8 -march=armv7-a
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS)
@@ -89,6 +92,9 @@ printcommands:
 	@echo ""
 
 all: printcommands build
+
+# depend order only for parallel make
+build: | printcommands
 
 build: $(OBJDIR) elf
 
@@ -123,13 +129,12 @@ $(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
 # Listing of phony targets.
 .PHONY : printcommands all build elf
 
-.NOTPARALLEL: printcommands
-
 #
 # Dependencies
 #
-ifneq ($(MAKECMDGOALS),clean)
+
 DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
-DEPS += $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.cpp=.d))
+
+ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS)
 endif
