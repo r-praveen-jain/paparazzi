@@ -31,14 +31,14 @@ void my_autopilot_periodic(){
 		//--------------------------------------------------------------------------------------------------------------
 		// Implementation 1: works only with zero heading
 		//--------------------------------------------------------------------------------------------------------------
-		struct FloatQuat my_quat_setpoint = {0};
-		struct FloatEulers my_euler_setpoint = {.phi = myrefcommand.phi, .theta = myrefcommand.theta, .psi = 0};
-		float_quat_of_eulers(&my_quat_setpoint, &my_euler_setpoint);
-		QUAT_BFP_OF_REAL(stab_att_sp_quat, my_quat_setpoint);
+		//struct FloatQuat my_quat_setpoint = {0};
+		//struct FloatEulers my_euler_setpoint = {.phi = myrefcommand.phi, .theta = myrefcommand.theta, .psi = 0};
+		//float_quat_of_eulers(&my_quat_setpoint, &my_euler_setpoint);
+		//QUAT_BFP_OF_REAL(stab_att_sp_quat, my_quat_setpoint);
 		//--------------------------------------------------------------------------------------------------------------
 		// Implementation 2: works with heading control TODO: Yet to test
 		//--------------------------------------------------------------------------------------------------------------
-		/*struct FloatQuat my_quat_rp = {0};
+		struct FloatQuat my_quat_rp = {0};
 		struct FloatQuat my_quat_setpoint = {0};
 		struct FloatQuat my_quat_yaw = {0};	
 		
@@ -48,11 +48,12 @@ void my_autopilot_periodic(){
 		float_quat_comp(&my_quat_setpoint, &my_quat_yaw, &my_quat_rp);
 		float_quat_normalize(&my_quat_setpoint);
 		QUAT_BFP_OF_REAL(stab_att_sp_quat, my_quat_setpoint);
-		//-------------------------------------------------------------------------------------------------------------*/
-		stabilization_cmd[COMMAND_THRUST] = myrefcommand.thrust; 
+		//This one needed. Why? Not sure, maybe for telemetry and heading reference of some kind
 		stab_att_sp_euler.phi   = myrefcommand.phi;
 		stab_att_sp_euler.theta = myrefcommand.theta;
 		stab_att_sp_euler.psi   = optitrack_heading;
+		//-------------------------------------------------------------------------------------------------------------
+		stabilization_cmd[COMMAND_THRUST] = myrefcommand.thrust; 
 		control_cmd_flag = 0;
 	}
 	
