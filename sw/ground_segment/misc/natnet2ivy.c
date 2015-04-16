@@ -65,7 +65,7 @@ char *ivy_bus                   = "127.255.255.255:2010";
 #endif
 
 /** Sample frequency and derevitive defaults */
- //uint32_t freq_transmit          = 30;     ///< Transmitting frequency in Hz
+//uint32_t freq_transmit          = 30;     ///< Transmitting frequency in Hz
 uint32_t freq_transmit          = 100;     ///< Transmitting frequency in Hz (change made by praveen jain)
 uint16_t min_velocity_samples   = 4;      ///< The amount of position samples needed for a valid velocity
 

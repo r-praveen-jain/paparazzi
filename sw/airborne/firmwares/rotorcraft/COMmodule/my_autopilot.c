@@ -16,6 +16,7 @@
 bool my_autopilot_motors_on = 1;
 bool my_autopilot_in_flight = 1;
 double optitrack_heading = MY_DEG2RAD(-122.35); 
+const struct FloatVect3 my_zaxis = {0., 0., 1.};
 
 
 void my_autopilot_init(){
@@ -27,14 +28,31 @@ void my_autopilot_init(){
 void my_autopilot_periodic(){
 
 	if(control_cmd_flag == 1){
+		//--------------------------------------------------------------------------------------------------------------
+		// Implementation 1: works only with zero heading
+		//--------------------------------------------------------------------------------------------------------------
 		struct FloatQuat my_quat_setpoint = {0};
 		struct FloatEulers my_euler_setpoint = {.phi = myrefcommand.phi, .theta = myrefcommand.theta, .psi = 0};
 		float_quat_of_eulers(&my_quat_setpoint, &my_euler_setpoint);
 		QUAT_BFP_OF_REAL(stab_att_sp_quat, my_quat_setpoint);
+		//--------------------------------------------------------------------------------------------------------------
+		// Implementation 2: works with heading control TODO: Yet to test
+		//--------------------------------------------------------------------------------------------------------------
+		/*struct FloatQuat my_quat_rp = {0};
+		struct FloatQuat my_quat_setpoint = {0};
+		struct FloatQuat my_quat_yaw = {0};	
+		
+		struct FloatEulers my_euler_setpoint = {.phi = myrefcommand.phi, .theta = myrefcommand.theta, .psi = 0};
+		float_quat_of_eulers(&my_quat_rp, &my_euler_setpoint);
+		float_quat_of_axis_angle(&my_quat_yaw, &my_zaxis, optitrack_heading);
+		float_quat_comp(&my_quat_setpoint, &my_quat_yaw, &my_quat_rp);
+		float_quat_normalize(&my_quat_setpoint);
+		QUAT_BFP_OF_REAL(stab_att_sp_quat, my_quat_setpoint);
+		//-------------------------------------------------------------------------------------------------------------*/
 		stabilization_cmd[COMMAND_THRUST] = myrefcommand.thrust; 
-		//stab_att_sp_euler.phi   = myrefcommand.phi;
-		//stab_att_sp_euler.theta = myrefcommand.theta;
-		//stab_att_sp_euler.psi   = 0;
+		stab_att_sp_euler.phi   = myrefcommand.phi;
+		stab_att_sp_euler.theta = myrefcommand.theta;
+		stab_att_sp_euler.psi   = optitrack_heading;
 		control_cmd_flag = 0;
 	}
 	
