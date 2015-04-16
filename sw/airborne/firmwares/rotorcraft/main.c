@@ -87,13 +87,15 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "mcu_periph/usb_serial.h"
 #endif
 
-
+#define USE_MPC_SDK
+#ifdef USE_MPC_SDK
 /*----------------------------------------------------------------------------*/
 /* Start - Custom Communication Module with the offboard Controller*/
+/*----------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
+//#include <signal.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Communication/Control_COMport.h"
@@ -139,10 +141,10 @@ int close_pthread(){
 	}
 	return EXIT_SUCCESS;
 }
-
+/*----------------------------------------------------------------*/
 /* End - Custom Communication module with the offboard Controller */
-/*-----------------------------------------------------------------*/
-
+/*----------------------------------------------------------------*/
+#endif
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
@@ -189,17 +191,17 @@ tid_t baro_tid;          ///< id for baro_periodic() timer
 int main(void)
 {
   main_init();
-  // Start - Custom Communication Module---------------------------------------
-  init_pthread();
-  my_init_socket();  
+ 
   while(1){ 
     handle_periodic_tasks();
     main_event();
   }
+
+#ifdef USE_MPC_SDK // Close Custom Communication Module
   close_pthread();
   my_close_socket();
   printf("Exiting Program\n");
-  // End - Custom Communication Module-----------------------------------------
+#endif  
   return 0;
 }
 #endif /* SITL */
@@ -231,10 +233,14 @@ STATIC_INLINE void main_init(void)
   gps_init();
 #endif
 
-//##################################################################################
-  //autopilot_init();
+#ifdef USE_MPC_SDK     // Initialize Custom Communication Module
+  init_pthread();
+  my_init_socket();
   my_autopilot_init(); // Custom autopilot module
-//##################################################################################
+#else 
+  autopilot_init();
+#endif
+
   modules_init();
 
   settings_init();
@@ -290,10 +296,12 @@ STATIC_INLINE void main_periodic(void)
   imu_periodic();
 
   /* run control loops */
-//###########################################################################  
-  //autopilot_periodic();
-  my_autopilot_periodic();
-//###########################################################################
+#ifdef USE_MPC_SDK
+  my_autopilot_periodic(); // Just the plain stabilization loop
+#else
+  autopilot_periodic();
+#endif
+
   /* set actuators     */
   //actuators_set(autopilot_motors_on);
   SetActuatorsFromCommands(commands, autopilot_mode);

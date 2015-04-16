@@ -61,11 +61,13 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS)
 
+LDFLAGS += -lm $(FLOAT_ABI)
+LDFLAGS += -lpthread
 ########################################################
 # Modified by Praveen Jain  (added pthread lib)
 ########################################################
 # LDFLAGS += -lm $(FLOAT_ABI) -- This the original line of makefile
-LDFLAGS += -lm $(FLOAT_ABI) -lpthread
+# LDFLAGS += -lm $(FLOAT_ABI) -lpthread
 ########################################################
 
 CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -fPIC
