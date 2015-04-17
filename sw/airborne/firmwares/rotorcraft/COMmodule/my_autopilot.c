@@ -15,7 +15,7 @@
 
 bool my_autopilot_motors_on = 1;
 bool my_autopilot_in_flight = 1;
-double optitrack_heading = MY_DEG2RAD(-122.35); 
+double optitrack_heading = MY_DEG2RAD(0); // -122.35 
 const struct FloatVect3 my_zaxis = {0., 0., 1.};
 
 

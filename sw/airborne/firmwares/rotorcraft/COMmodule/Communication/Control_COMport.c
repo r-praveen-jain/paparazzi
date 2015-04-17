@@ -89,7 +89,6 @@ int my_ReceiveControlCommand(void){
 		perror("Could not receive control command\n");
 		exit(EXIT_FAILURE);
 	}
-	//printf("%d %d %d %d %d %d %d %d\n", n, ControlCommand[0], ControlCommand[1], ControlCommand[2], ControlCommand[3], ControlCommand[4], ControlCommand[5], ControlCommand[6]);
 	return_flag = depacketizeControlCommand(ControlCommand);
         return return_flag;
 }
