@@ -405,7 +405,7 @@ static inline void ahrs_icq_update_mag_full(struct Int32Vect3 *mag, float dt)
   /* Complementary filter proportionnal gain.
    * Kp = 2 * mag_zeta * mag_omega
    * final Kp with frequency correction = Kp * ahrs_icq.mag_cnt
-   * with ahrs_icq.mag_cnt beeing the number of propagations since last update
+   * with ahrs_icq.mag_cnt being the number of propagations since last update
    *
    * residual FRAC: 2 * MAG_FRAC = 22
    * rate_correction FRAC: RATE_FRAC = 12

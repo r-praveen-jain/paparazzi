@@ -81,7 +81,7 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 				ptr += 2;
 				myrefcommand.theta  = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // In radians - floating point
 				ptr += 2;
-				myrefcommand.psi    = ((int16_t)(*(ptr+1)<<8) | *(ptr+2)); // optitrack heading command
+				myrefcommand.psi    = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // optitrack heading command
 				return_flag = EXIT_SUCCESS;				
 				break;
 			case 0xFF: //if autopilot_motors_on

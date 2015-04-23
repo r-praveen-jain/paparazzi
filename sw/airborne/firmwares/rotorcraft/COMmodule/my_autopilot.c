@@ -6,6 +6,7 @@
 #include "subsystems/electrical.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/gps.h"
+#include "subsystems/imu.h"
 #include "firmwares/rotorcraft/stabilization.h"
 //#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
 //#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
@@ -20,7 +21,7 @@
 
 bool my_autopilot_motors_on = 1;
 bool my_autopilot_in_flight = 1;
-double desired_heading = MY_DEG2RAD(0); // -122.35 + 90 = -32.35
+double desired_heading = MY_DEG2RAD(-7); // -122.35 + 90 = -32.35
 const struct FloatVect3 my_zaxis = {0., 0., 1.};
 
 //-------------------------------------------------------------------------------------------
@@ -72,8 +73,10 @@ void my_autopilot_periodic(){
 		stabilization_cmd[COMMAND_THRUST] = myrefcommand.thrust; 
 		control_cmd_flag = 0;
 	}
+	//gps.fix = GPS_FIX_3D;
 	stabilization_attitude_run(my_autopilot_in_flight); // [arg]: bool in_flight = 1
-        printf("phi: %f theta: %f psi: %f\n", MY_RAD2DEG(stateGetNedToBodyEulers_f()->phi), MY_RAD2DEG(stateGetNedToBodyEulers_f()->theta), MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi));
+        //printf("phi: %f theta: %f psi: %f\n", MY_RAD2DEG(stateGetNedToBodyEulers_f()->phi), MY_RAD2DEG(stateGetNedToBodyEulers_f()->theta), MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi));
+	printf("mag: %f mag scaled x: %d y: %d z: %d\n",MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi), imu.mag.x, imu.mag.y, imu.mag.z);
 	SetRotorcraftCommands(stabilization_cmd, my_autopilot_in_flight, my_autopilot_motors_on);
 }
 
