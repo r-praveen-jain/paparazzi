@@ -6,7 +6,7 @@
  */
 
 #include "Control_COMport.h"
-//#include "../parameters.h"
+#include "../parameters.h"
 #include "firmwares/rotorcraft/autopilot.h" //for autopilot_motors_on
 #include <stdio.h>
 #include <unistd.h>
@@ -18,7 +18,7 @@ mysocket_t laptop_control, drone_control;
 #ifdef USE_MYTELEMETRY
 mysocket_t laptop_telemetry, drone_telemetry;
 #endif
-myrefcommand_t myrefcommand = {.thrust = 0, .phi = 0, .theta = 0, .psi = 0};
+myrefcommand_t myrefcommand = {.thrust = 0, .phi = 0, .theta = 0, .psi = MY_DEG2RAD(-122.35)};
 
 unsigned int myseqnum = 0;
 
@@ -91,6 +91,11 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 				else if(*(ptr+1) == 255){autopilot_motors_on = 1;}
 				return_flag = EXIT_SUCCESS;
 				break;
+			//case 0xFD: // if optitrack heading
+			//	myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
+			//	ptr += 2;
+			//	myrefcommand.psi    = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // optitrack heading command
+			//	return_flag = EXIT_SUCCESS;
 			default: return_flag = EXIT_FAILURE;
 				break;
 		}

@@ -7,12 +7,13 @@
 extern bool control_cmd_flag;
 extern bool my_autopilot_motors_on;
 extern bool my_autopilot_in_flight;
-extern double optitrack_heading;
+extern double desired_heading;
 
 extern void my_autopilot_init(void);
 extern void my_autopilot_periodic(void);
 extern void my_telemetry_periodic(void);
 extern unsigned long my_GetTimeStamp(void);
+extern void update_heading_from_optitrack(double optitrack_heading);
 
 /** Set Rotorcraft commands.
  *  Limit thrust and/or yaw depending of the in_flight

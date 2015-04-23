@@ -5,9 +5,9 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
-      <configure name="USE_MAGNETOMETER" value="1"/>
+      <configure name="USE_MAGNETOMETER" value="0"/>
       <configure name="PERIODIC_FREQUENCY" value="500"/>
-      <!--configure name="AHRS_PROPAGATE_FREQUENCY" value="512"/-->
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <subsystem name="telemetry" type="transparent_udp"/>
       <subsystem name="radio_control" type="datalink"/>
     </target>
@@ -81,14 +81,12 @@
 
     <!-- Magneto calibration -->
 
-    <define name="MAG_X_NEUTRAL" value="32"/>
-    <define name="MAG_Y_NEUTRAL" value="23"/>
-    <define name="MAG_Z_NEUTRAL" value="18"/>
-    <define name="MAG_X_SENS" value="13.1611621694" integer="16"/>
-    <define name="MAG_Y_SENS" value="13.5119051114" integer="16"/>
-    <define name="MAG_Z_SENS" value="12.9016317194" integer="16"/>
-
-
+    <define name="MAG_X_NEUTRAL" value="33"/>
+    <define name="MAG_Y_NEUTRAL" value="27"/>
+    <define name="MAG_Z_NEUTRAL" value="16"/>
+    <define name="MAG_X_SENS" value="14.1525578907" integer="16"/>
+    <define name="MAG_Y_SENS" value="14.4876252634" integer="16"/>
+    <define name="MAG_Z_SENS" value="15.3161560488" integer="16"/>
 
     <!-- Magneto current calibration -->
     <define name="MAG_X_CURRENT_COEF" value="0.0"/>
@@ -113,7 +111,7 @@
     <define name="H_Z" value="0.9211303"/>
 
     <!-- Use GPS heading instead of magneto -->
-    <!--define name="USE_GPS_HEADING" value="1"/--> 
+    <define name="USE_GPS_HEADING" value="1"/> 
   </section>
 
   <section name="INS" prefix="INS_">

@@ -31,7 +31,7 @@ typedef struct myrefcommand_t{
 	double thrust;
 	double phi;			// roll
 	double theta;			// pitch
-	int16_t psi;			// psi	
+	double psi;			// psi	
 } myrefcommand_t;				// Structure to store the depacketized control command
 
 // Global Variables

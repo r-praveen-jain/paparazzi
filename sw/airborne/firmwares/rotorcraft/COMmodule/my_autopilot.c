@@ -21,7 +21,7 @@
 
 bool my_autopilot_motors_on = 1;
 bool my_autopilot_in_flight = 1;
-double desired_heading = MY_DEG2RAD(-7); // -122.35 + 90 = -32.35
+double desired_heading = MY_DEG2RAD(-122.35); // -122.35 + 90 = -32.35
 const struct FloatVect3 my_zaxis = {0., 0., 1.};
 
 //-------------------------------------------------------------------------------------------
@@ -33,6 +33,19 @@ unsigned long my_GetTimeStamp(){
 	return time_in_micros;
 }
 //----------------------------------------------------------------------------------------------
+
+
+void update_heading_from_optitrack(double optitrack_heading)
+{
+  /* convert float heading from radians to fixed point */
+  int32_t heading = ANGLE_BFP_OF_REAL(optitrack_heading);
+  if (ahrs_icq.heading_aligned) {
+    ahrs_icq_update_heading(heading);
+  } else {
+    /* hard reset the heading if this is the first measurement */
+    ahrs_icq_realign_heading(heading);
+  }
+}
 
 void my_autopilot_init(){
 	// Initialize stabilization loops
@@ -53,7 +66,7 @@ void my_autopilot_periodic(){
 		//--------------------------------------------------------------------------------------------------------------
 		// Implementation 2: works with heading control (sometimes, some problem with yaw still exists)
 		//--------------------------------------------------------------------------------------------------------------
-		//gps.course = myrefcommand.psi * 1e7;
+		
 	
 		struct FloatQuat my_quat_rp = {0};
 		struct FloatQuat my_quat_setpoint = {0};
@@ -71,12 +84,18 @@ void my_autopilot_periodic(){
 		stab_att_sp_euler.psi   = ANGLE_BFP_OF_REAL(desired_heading);
 		//-------------------------------------------------------------------------------------------------------------
 		stabilization_cmd[COMMAND_THRUST] = myrefcommand.thrust; 
+		update_heading_from_optitrack(myrefcommand.psi);
 		control_cmd_flag = 0;
 	}
+	
+	//struct FloatEulers dummy_eulers = {.phi = stateGetNedToBodyEulers_f()->phi, .theta = stateGetNedToBodyEulers_f()->theta, .psi = myrefcommand.psi};
+	//stateSetNedToBodyEulers_f(&dummy_eulers);
+
+	//gps.course = myrefcommand.psi * 1e7;
 	//gps.fix = GPS_FIX_3D;
 	stabilization_attitude_run(my_autopilot_in_flight); // [arg]: bool in_flight = 1
         //printf("phi: %f theta: %f psi: %f\n", MY_RAD2DEG(stateGetNedToBodyEulers_f()->phi), MY_RAD2DEG(stateGetNedToBodyEulers_f()->theta), MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi));
-	printf("mag: %f mag scaled x: %d y: %d z: %d\n",MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi), imu.mag.x, imu.mag.y, imu.mag.z);
+	//printf("mag: %f mag scaled x: %d y: %d z: %d\n",MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi), imu.mag.x, imu.mag.y, imu.mag.z);
 	SetRotorcraftCommands(stabilization_cmd, my_autopilot_in_flight, my_autopilot_motors_on);
 }
 

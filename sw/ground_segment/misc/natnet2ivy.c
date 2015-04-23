@@ -546,7 +546,7 @@ gboolean timeout_transmit_callback(gpointer data) {
       (int)(mpc_speed.x*1000.0), 	     //int32 velocity X in mm/s - Optitrack coordinates
       (int)(mpc_speed.y*1000.0), //int32 velocity Y in mm/s - Optitrack coordinates
       (int)(mpc_speed.z*1000.0), //int32 velocity Z in mm/s - optirack coordinates
-      (int)(mpc_heading*10000000.0));             
+      (int)(heading*10000000.0));             
 
 //########################################################################################################################
 
