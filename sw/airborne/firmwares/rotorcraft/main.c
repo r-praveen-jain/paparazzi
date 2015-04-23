@@ -94,6 +94,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include <pthread.h>
 #include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/Communication/Control_COMport.h"
 #include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/my_autopilot.h"
+#include "/home/praveen/paparazzi/sw/airborne/firmwares/rotorcraft/COMmodule/parameters.h"
 
 pthread_t control_thread;
 bool control_cmd_flag = 0;
@@ -107,7 +108,7 @@ void *pthread_handler(){
 		return_flag = my_ReceiveControlCommand();
 		if(return_flag == EXIT_SUCCESS){		
 		control_cmd_flag = 1;
-		//printf("%d %f %f %f\n",myseqnum, myrefcommand.thrust, myrefcommand.phi, myrefcommand.theta);
+		//printf("%d %f %f %f %d\n",myseqnum, myrefcommand.thrust, myrefcommand.phi, myrefcommand.theta, myrefcommand.psi);
 		}
 		else{
 			printf("Error receiving control command\n");
@@ -278,7 +279,11 @@ STATIC_INLINE void handle_periodic_tasks(void)
     electrical_periodic();
   }
   if (sys_time_check_and_ack_timer(telemetry_tid)) {
+#ifdef USE_MYTELEMETRY
+    my_telemetry_periodic();
+#else    
     telemetry_periodic();
+#endif
   }
 #if USE_BARO_BOARD
   if (sys_time_check_and_ack_timer(baro_tid)) {

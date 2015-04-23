@@ -12,6 +12,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdint.h>
+#include "../parameters.h"
 
 
 #define MYDOMAIN 		AF_INET			// used in socket() function call
@@ -28,16 +30,22 @@ typedef struct mysocket_t {
 typedef struct myrefcommand_t{
 	double thrust;
 	double phi;			// roll
-	double theta;			// pitch	
+	double theta;			// pitch
+	int16_t psi;			// psi	
 } myrefcommand_t;				// Structure to store the depacketized control command
 
 // Global Variables
-extern mysocket_t laptop, drone;
+extern mysocket_t laptop_control, drone_control; // sockets to receive control commands
+
+#ifdef USE_MYTELEMETRY
+extern mysocket_t laptop_telemetry, drone_telemetry;
+#endif
 extern myrefcommand_t myrefcommand;
 extern unsigned int myseqnum;
 
 int my_init_socket(void);
 int my_ReceiveControlCommand(void);
+int my_SendPacket(char *packet, uint16_t numBytes);
 int my_close_socket(void);
 
 

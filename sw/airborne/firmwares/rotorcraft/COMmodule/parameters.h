@@ -12,9 +12,11 @@
 // Defines for UDP Communication with the Drone
 #define MAIN_FREQ 10
 #define DRONE_IP 	"192.168.1.1"		// IP Address of the Drone
-#define LAPTOP_IP 	"192.168.1.3"
+#define LAPTOP_IP 	"192.168.1.2"
+#define USE_MYTELEMETRY				// Comment this line to remove the custom telemetry
 
 #define CONTROL_PORT	5555			// Port number for control commands
+#define TELEMETRY_PORT  5556
 
 
 // Defines related to the depacketization of control commands

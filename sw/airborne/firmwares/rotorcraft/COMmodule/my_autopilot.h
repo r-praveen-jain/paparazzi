@@ -11,6 +11,8 @@ extern double optitrack_heading;
 
 extern void my_autopilot_init(void);
 extern void my_autopilot_periodic(void);
+extern void my_telemetry_periodic(void);
+extern unsigned long my_GetTimeStamp(void);
 
 /** Set Rotorcraft commands.
  *  Limit thrust and/or yaw depending of the in_flight
