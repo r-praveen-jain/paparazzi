@@ -21,7 +21,7 @@
 
 bool my_autopilot_motors_on = 1;
 bool my_autopilot_in_flight = 1;
-double desired_heading = MY_DEG2RAD(-122.35); // -122.35 + 90 = -32.35
+double desired_heading = MY_DEG2RAD(0); // -122.35 + 90 = -32.35
 const struct FloatVect3 my_zaxis = {0., 0., 1.};
 
 //-------------------------------------------------------------------------------------------
@@ -64,10 +64,9 @@ void my_autopilot_periodic(){
 		//float_quat_of_eulers(&my_quat_setpoint, &my_euler_setpoint);
 		//QUAT_BFP_OF_REAL(stab_att_sp_quat, my_quat_setpoint);
 		//--------------------------------------------------------------------------------------------------------------
-		// Implementation 2: works with heading control (sometimes, some problem with yaw still exists)
+		// Implementation 2: works with heading control
 		//--------------------------------------------------------------------------------------------------------------
-		
-	
+			
 		struct FloatQuat my_quat_rp = {0};
 		struct FloatQuat my_quat_setpoint = {0};
 		struct FloatQuat my_quat_yaw = {0};	
@@ -102,6 +101,7 @@ void my_autopilot_periodic(){
 #ifdef USE_MYTELEMETRY
 void my_telemetry_periodic(){
 	char telemetry_packet[1024] = {0}; // TODO: Remove the hard coding of array size
+ 
 	sprintf(telemetry_packet, "%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f",
 				 //my_GetTimeStamp(),
 				 electrical.vsupply,
@@ -112,12 +112,12 @@ void my_telemetry_periodic(){
 				 ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.theta),
 				 ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi),
 				 stateGetNedToBodyEulers_f()->phi,
-				 stateGetNedToBodyEulers_f()->theta,
- 				 stateGetNedToBodyEulers_f()->psi,
+			 	 stateGetNedToBodyEulers_f()->theta,
+			 	 stateGetNedToBodyEulers_f()->psi,
 				 stateGetBodyRates_f()->p,
 				 stateGetBodyRates_f()->q,
 			         stateGetBodyRates_f()->r);
 	my_SendPacket(telemetry_packet, strlen(telemetry_packet));
 }
 #endif
-
+ 

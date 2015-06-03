@@ -18,7 +18,7 @@ mysocket_t laptop_control, drone_control;
 #ifdef USE_MYTELEMETRY
 mysocket_t laptop_telemetry, drone_telemetry;
 #endif
-myrefcommand_t myrefcommand = {.thrust = 0, .phi = 0, .theta = 0, .psi = MY_DEG2RAD(-122.35)};
+myrefcommand_t myrefcommand = {.thrust = 0, .phi = 0, .theta = 0, .psi = MY_DEG2RAD(0)};
 
 unsigned int myseqnum = 0;
 
