@@ -5,6 +5,9 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
+      <define name="DRONE_IP" 	 value="\\\"192.168.42.1\\\""/>
+      <define name="LAPTOP_IP" 	 value="\\\"192.168.42.3\\\""/>
+      <define name="USE_MPC_SDK"/>
       <configure name="USE_MAGNETOMETER" value="0"/>
       <configure name="PERIODIC_FREQUENCY" value="500"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
@@ -25,14 +28,14 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="datalink"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/> 
     <subsystem name="ins" type="extended"/>
   </firmware>
 
-  <!--modules main_freq="512">
-    <load name="geo_mag.xml"/>
+  <modules main_freq="512">
+    <!--load name="geo_mag.xml"/-->
     <load name="air_data.xml"/>
-    <load name="send_imu_mag_current.xml"/>
+    <!--load name="send_imu_mag_current.xml"/>
     <load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
@@ -45,8 +48,8 @@
       <define name="VIEWVIDEO_DEVICE_SIZE" value="320,240"/>
       <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
       <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
-    </load>
-  </modules-->
+    </load-->
+  </modules>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

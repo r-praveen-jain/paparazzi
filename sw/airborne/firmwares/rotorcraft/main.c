@@ -78,10 +78,14 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #endif
 
 #include "generated/modules.h"
+#include "generated/airframe.h"
 #include "subsystems/abi.h"
 
-
+//bool control_cmd_flag = 0;
+//#ifndef USE_MPC_SDK
 #define USE_MPC_SDK
+//#endif
+
 #ifdef USE_MPC_SDK
 /*----------------------------------------------------------------------------*/
 /* Start - Custom Communication Module with the offboard Controller*/

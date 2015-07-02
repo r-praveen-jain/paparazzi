@@ -69,6 +69,9 @@ char *ivy_bus                   = "127.255.255.255:2010";
 uint32_t freq_transmit          = 50;     ///< Transmitting frequency in Hz (change made by praveen jain)
 uint16_t min_velocity_samples   = 4;      ///< The amount of position samples needed for a valid velocity
 
+/* Variable to hold the ID of the slung load */
+uint8_t slung_load_id;
+
 /** Connection timeout when not receiving **/
 #define CONNECTION_TIMEOUT          .5
 
@@ -521,7 +524,7 @@ gboolean timeout_transmit_callback(gpointer data) {
 
 
     // Transmit the REMOTE_GPS packet on the ivy bus
-    IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
+    /*IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
       rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
       (int)(ecef_pos.x*100.0),                //int32 ECEF X in CM
       (int)(ecef_pos.y*100.0),                //int32 ECEF Y in CM
@@ -535,10 +538,20 @@ gboolean timeout_transmit_callback(gpointer data) {
       (int)(rigidBodies[i].ecef_vel.z*100.0), //int32 ECEF velocity Z in cm/s
       0,
       (int)(heading*10000000.0));             //int32 Course in rad*1e7
-
+*/
 //########################################################################################################################
     // Transmit the REMOTE_GPS packet on the ivy bus - Custom packet (modified by Praveen jain)
-    IvySendMsg("MPC_GPS %d,%d,%d,%d,%d,%d,%d,%d,%d", aircrafts[rigidBodies[i].id].ac_id,
+    if(rigidBodies[i].id == slung_load_id){
+      IvySendMsg("SLUNG_POS %d,%d,%d,%d,%d,%d,%d,%d", aircrafts[rigidBodies[i].id].ac_id,
+      rigidBodies[i].nMarkers,               //uint8 Number of markers (sv_num)
+      (int)(mpc_pos.x*1000.0),               //int32 X in mm - Optitrack coordinates
+      (int)(mpc_pos.y*1000.0),               //int32 Y in mm - Optitrack coordinates
+      (int)(mpc_pos.z*1000.0),               //int32 Z in mm - Optitrack coordinates
+      (int)(mpc_speed.x*1000.0), 	     //int32 velocity X in mm/s - Optitrack coordinates
+      (int)(mpc_speed.y*1000.0),             //int32 velocity Y in mm/s - Optitrack coordinates
+      (int)(mpc_speed.z*1000.0));            //int32 velocity Z in mm/s - optirack coordinates
+    } else {    
+      IvySendMsg("MPC_GPS %d,%d,%d,%d,%d,%d,%d,%d,%d", aircrafts[rigidBodies[i].id].ac_id,
       rigidBodies[i].nMarkers,               //uint8 Number of markers (sv_num)
       (int)(mpc_pos.x*1000.0),                //int32 X in mm - Optitrack coordinates
       (int)(mpc_pos.y*1000.0),                //int32 Y in mm - Optitrack coordinates
@@ -547,7 +560,7 @@ gboolean timeout_transmit_callback(gpointer data) {
       (int)(mpc_speed.y*1000.0), //int32 velocity Y in mm/s - Optitrack coordinates
       (int)(mpc_speed.z*1000.0), //int32 velocity Z in mm/s - optirack coordinates
       (int)(mpc_heading*10000000.0));             
-
+    }
 //########################################################################################################################
 
     // Reset the velocity differentiator if we calculated the velocity
@@ -592,7 +605,7 @@ void print_help(char* filename) {
     "   -h, --help                Display this help\n"
     "   -v, --verbose <level>     Verbosity level 0-2 (0)\n\n"
 
-    "   -ac <rigid_id> <ac_id>    Use rigid ID for GPS of ac_id (multiple possible)\n\n"
+    "   -ac <rigid_id> <ac_id> <slung_load_id>    Use rigid ID for GPS of ac_id (multiple possible)\n\n"
 
     "   -multicast_addr <ip>      NatNet server multicast address (239.255.42.99)\n"
     "   -server <ip>              NatNet server IP address (255.255.255.255)\n"
@@ -643,6 +656,8 @@ static void parse_options(int argc, char** argv) {
 
       int rigid_id = atoi(argv[++i]);
       uint8_t ac_id = atoi(argv[++i]);
+      slung_load_id = atoi(argv[++i]); // ID of the slung load.
+      //printf("Slung Load ID is %d\n", slung_load_id);
 
       if(rigid_id >= MAX_RIGIDBODIES) {
         fprintf(stderr, "Rigid body ID must be less then %d (MAX_RIGIDBODIES)\n\n", MAX_RIGIDBODIES);
@@ -650,6 +665,8 @@ static void parse_options(int argc, char** argv) {
         exit(EXIT_FAILURE);
       }
       aircrafts[rigid_id].ac_id = ac_id;
+      aircrafts[slung_load_id].ac_id = ac_id; // Map the slung load ID to the aircraft ID
+      //printf("Aircraft ID set to %d\n", aircrafts[slung_load_id].ac_id);
       count_ac++;
     }
 
@@ -751,6 +768,11 @@ static void parse_options(int argc, char** argv) {
   }
 }
 
+void ByeCallback (IvyClientPtr app, void *data, int argc, char **argv)
+{
+	IvySendMsg("Bye");
+}
+
 int main(int argc, char** argv)
 {
   // Set the default tracking system position and angle
@@ -779,7 +801,7 @@ int main(int argc, char** argv)
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   IvyInit("natnet2ivy", "natnet2ivy READY", 0, 0, 0, 0);
   IvyStart(ivy_bus);
-
+  IvyBindMsg (ByeCallback, 0, "^Bye$");
   // Create the main timers
   printf_debug("Starting transmitting and sampling timeouts (transmitting frequency: %dHz, minimum velocity samples: %d)\n",
     freq_transmit, min_velocity_samples);
