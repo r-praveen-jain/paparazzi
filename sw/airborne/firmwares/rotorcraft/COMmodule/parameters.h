@@ -16,7 +16,7 @@
 #endif
 
 #ifndef LAPTOP_IP
-#define LAPTOP_IP 	"192.168.1.3"
+#define LAPTOP_IP 	"192.168.1.2"
 #endif
 #define USE_MYTELEMETRY				// Comment this line to remove the custom telemetry
 

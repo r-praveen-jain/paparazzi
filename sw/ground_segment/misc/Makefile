@@ -52,10 +52,10 @@ NATNET_LIBRARYS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre
 
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/ $(IVY_INC)
 
-all: davis2ivy kestrel2ivy natnet2ivy natnet2ivy_slungload video_synchronizer
+all: davis2ivy kestrel2ivy natnet2ivy natnet2ivy_slungload video_synchronizer natnet2ivy_slungload_v2_7
 
 clean:
-	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy natnet2ivy_slungload video_synchronizer
+	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy natnet2ivy_slungload video_synchronizer natnet2ivy_slungload_v2_7
 
 davis2ivy: davis2ivy.o
 	@echo CC $@
@@ -74,6 +74,9 @@ natnet2ivy_slungload: natnet2ivy_slungload.o pprz_geodetic_double.o pprz_algebra
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o natnet2ivy_slungload natnet2ivy_slungload.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) $(IVY_LDFLAGS)
 
+natnet2ivy_slungload_v2_7: natnet2ivy_slungload_v2_7.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -o natnet2ivy_slungload_v2_7 natnet2ivy_slungload_v2_7.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) $(IVY_LDFLAGS)
 
 video_synchronizer: video_synchronizer.c
 	@echo CC $@
