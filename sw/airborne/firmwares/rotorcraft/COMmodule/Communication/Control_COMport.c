@@ -2,25 +2,26 @@
  * Control_COMport.c
  *
  *  Created on: Feb 27, 2015
- *      Author: praveen
+ *      Author: Praveen Jain (r.praveen.jain@gmail.com)
+ * Description: Function definitions used for communication with the external controller
  */
 
 #include "Control_COMport.h"
 #include "../parameters.h"
-#include "firmwares/rotorcraft/autopilot.h" //for autopilot_motors_on
+#include "firmwares/rotorcraft/autopilot.h" //needed to use the variable 'autopilot_motors_on'
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 
 // Global Variables
-mysocket_t laptop_control, drone_control;
+mysocket_t laptop_control, drone_control;		// sockets to receive control commands
 #ifdef USE_MYTELEMETRY
-mysocket_t laptop_telemetry, drone_telemetry;
+mysocket_t laptop_telemetry, drone_telemetry;	// sockets to send telemetry data
 #endif
-myrefcommand_t myrefcommand = {.thrust = 0, .phi = 0, .theta = 0, .psi = MY_DEG2RAD(0)};
+myrefcommand_t myrefcommand = {.thrust = 0, .phi = 0, .theta = 0, .psi = MY_DEG2RAD(0)}; // Structure to store depacketized control cmd
 
-unsigned int myseqnum = 0;
+unsigned int myseqnum = 0; // Store the sequence number obtained from control command. Could be used detect data loss
 
 //Function definition
 int my_init_socket(void){
@@ -64,7 +65,7 @@ int my_init_socket(void){
 	return EXIT_SUCCESS;
 }
 
-// Static function used in my_ReceiveControlCommand function
+// Static function used in my_ReceiveControlCommand function. Objective is to depacketize the received control command
 
 static inline int depacketizeControlCommand(unsigned char *cmd){
 	unsigned char *ptr = cmd; // Why another pointer variable called ptr and why not use cmd. Good question!
@@ -81,21 +82,16 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 				ptr += 2;
 				myrefcommand.theta  = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // In radians - floating point
 				ptr += 2;
-				myrefcommand.psi    = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // optitrack heading command
+				myrefcommand.psi    = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // optitrack heading command in radians - floating point
 				return_flag = EXIT_SUCCESS;				
 				break;
-			case 0xFF: //if autopilot_motors_on
+			case 0xFF: //if autopilot_motors_on (used to switch ON/OFF the motors of the drone
 				myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
 				ptr += 2;
 				if(*(ptr+1) == 0){autopilot_motors_on = 0;}
 				else if(*(ptr+1) == 255){autopilot_motors_on = 1;}
 				return_flag = EXIT_SUCCESS;
 				break;
-			//case 0xFD: // if optitrack heading
-			//	myseqnum = (*(ptr+1)<<8) | *(ptr+2); // Compute sequence number. Can do something useful with it	
-			//	ptr += 2;
-			//	myrefcommand.psi    = ((int16_t)(*(ptr+1)<<8) | *(ptr+2))/1000.0; // optitrack heading command
-			//	return_flag = EXIT_SUCCESS;
 			default: return_flag = EXIT_FAILURE;
 				break;
 		}
@@ -106,10 +102,10 @@ static inline int depacketizeControlCommand(unsigned char *cmd){
 	return return_flag;
 }
 
-
+// Receives the control command packet and depacketizes it using the static function defined above.
 int my_ReceiveControlCommand(void){
 	char n = 0;
-	unsigned char ControlCommand[12]; // 12 is MAX_CMD_SIZE. Dirty implementation
+	unsigned char ControlCommand[12]; // 12 is MAX_CMD_SIZE. Dirty implementation, TODO: use the define MAX_CMD_SIZE
 	int return_flag = 0;
 	printf("Blocked\n");
 	n = recvfrom(drone_control.sockfd, ControlCommand, 12,0, (struct sockaddr *)&laptop_control.addr, &laptop_control.addr_len);
@@ -122,6 +118,7 @@ int my_ReceiveControlCommand(void){
 }
 
 #ifdef USE_MYTELEMETRY
+// Send the telemetry data pointed by *packet of size numBytes
 int my_SendPacket(char *packet, uint16_t numBytes){
 	char n;
 	unsigned char tempbuf[numBytes];
@@ -134,6 +131,8 @@ int my_SendPacket(char *packet, uint16_t numBytes){
 	return n;
 }
 #endif
+
+// Close all socket connections
 int my_close_socket(void){
 	char res;
 	res = close(drone_control.sockfd);

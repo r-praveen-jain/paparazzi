@@ -1,15 +1,26 @@
+/*
+ * my_autopilot.h
+ *
+ *  Created on: March, 2015
+ *      Author: Praveen Jain (r.praveen.jain@gmail.com)
+ * Description: Custom autopilot implementation which only implements the stabilization loop with reference attitude commands obtained
+ * 				from the external controller. 
+ */
+
+
+
 #ifndef MY_AUTOPILOT_H
 #define MY_AUTOPILOT_H
 
 #include <stdbool.h>
 #include "generated/airframe.h"
 
-extern bool control_cmd_flag;
-extern bool my_autopilot_motors_on;
+extern bool control_cmd_flag;			// used to indicate when a control command is received
+extern bool my_autopilot_motors_on;		
 extern bool my_autopilot_in_flight;
-extern double desired_heading;
+extern double desired_heading;			// heading reference value
 
-extern void my_autopilot_init(void);
+extern void my_autopilot_init(void);		
 extern void my_autopilot_periodic(void);
 extern void my_telemetry_periodic(void);
 extern unsigned long my_GetTimeStamp(void);

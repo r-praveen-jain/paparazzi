@@ -1,6 +1,15 @@
+/*
+ * my_autopilot.c
+ *
+ *  Created on: March, 2015
+ *      Author: Praveen Jain (r.praveen.jain@gmail.com)
+ * Description: Custom autopilot implementation which only implements the stabilization loop with reference attitude commands obtained
+ * 				from the external controller. 
+ */
+
+
 #include "my_autopilot.h"
 #include "state.h"
-//#include "math/pprz_algebra_float.h"
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 #include "subsystems/electrical.h"
@@ -8,8 +17,6 @@
 #include "subsystems/gps.h"
 #include "subsystems/imu.h"
 #include "firmwares/rotorcraft/stabilization.h"
-//#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
-//#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/autopilot.h"
 #include "Communication/Control_COMport.h"
@@ -19,14 +26,15 @@
 #include <sys/time.h>
 #include <string.h>
 
-bool my_autopilot_motors_on = 1;
-bool my_autopilot_in_flight = 1;
-double desired_heading = MY_DEG2RAD(0); // -122.35 + 90 = -32.35
+bool my_autopilot_motors_on = 1;		// value doesn't change throughout the execution time
+bool my_autopilot_in_flight = 1;		// value doesn't change throughout the execution time
+double desired_heading = MY_DEG2RAD(0); // desired heading can be changed here. But this must be accounted for when generating control commands through external position controller
 const struct FloatVect3 my_zaxis = {0., 0., 1.};
 
 //-------------------------------------------------------------------------------------------
 struct timeval timestamp;
-// This function can be somewhere else, not a very good place to define this function
+// This function can be somewhere else, not a very good place to define this function.
+// Basically used to add a timestamp to the telemetry data.
 unsigned long my_GetTimeStamp(){
 	gettimeofday(&timestamp,NULL);
 	unsigned long time_in_micros = 1000000 * timestamp.tv_sec + timestamp.tv_usec;
@@ -34,7 +42,7 @@ unsigned long my_GetTimeStamp(){
 }
 //----------------------------------------------------------------------------------------------
 
-
+// The optitrack heading obtained from the external controller is used to update the heading of the drone
 void update_heading_from_optitrack(double optitrack_heading)
 {
   /* convert float heading from radians to fixed point */
@@ -87,18 +95,13 @@ void my_autopilot_periodic(){
 		control_cmd_flag = 0;
 	}
 	
-	//struct FloatEulers dummy_eulers = {.phi = stateGetNedToBodyEulers_f()->phi, .theta = stateGetNedToBodyEulers_f()->theta, .psi = myrefcommand.psi};
-	//stateSetNedToBodyEulers_f(&dummy_eulers);
-
-	//gps.course = myrefcommand.psi * 1e7;
-	//gps.fix = GPS_FIX_3D;
 	stabilization_attitude_run(my_autopilot_in_flight); // [arg]: bool in_flight = 1
-        //printf("phi: %f theta: %f psi: %f\n", MY_RAD2DEG(stateGetNedToBodyEulers_f()->phi), MY_RAD2DEG(stateGetNedToBodyEulers_f()->theta), MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi));
-	//printf("mag: %f mag scaled x: %d y: %d z: %d\n",MY_RAD2DEG(stateGetNedToBodyEulers_f()->psi), imu.mag.x, imu.mag.y, imu.mag.z);
 	SetRotorcraftCommands(stabilization_cmd, my_autopilot_in_flight, my_autopilot_motors_on);
 }
 
 #ifdef USE_MYTELEMETRY
+
+// Implementation of custom telemetry function
 void my_telemetry_periodic(){
 	char telemetry_packet[1024] = {0}; // TODO: Remove the hard coding of array size
  
@@ -116,7 +119,7 @@ void my_telemetry_periodic(){
 			 	 stateGetNedToBodyEulers_f()->psi,
 				 stateGetBodyRates_f()->p,
 				 stateGetBodyRates_f()->q,
-			         stateGetBodyRates_f()->r);
+			     stateGetBodyRates_f()->r);
 	my_SendPacket(telemetry_packet, strlen(telemetry_packet));
 }
 #endif
