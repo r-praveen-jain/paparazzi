@@ -5,12 +5,14 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
+<!-- Begin MPC -->
       <define name="DRONE_IP" 	 value="\\\"192.168.42.1\\\""/>
       <define name="LAPTOP_IP" 	 value="\\\"192.168.42.3\\\""/>
       <define name="USE_MPC_SDK"/>
       <configure name="USE_MAGNETOMETER" value="0"/>
       <configure name="PERIODIC_FREQUENCY" value="500"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+<!-- End MPC -->
       <subsystem name="telemetry" type="transparent_udp"/>
       <subsystem name="radio_control" type="datalink"/>
     </target>

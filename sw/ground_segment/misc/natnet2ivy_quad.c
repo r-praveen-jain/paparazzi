@@ -69,9 +69,6 @@ char *ivy_bus                   = "127.255.255.255:2010";
 uint32_t freq_transmit          = 50;     ///< Transmitting frequency in Hz (change made by praveen jain)
 uint16_t min_velocity_samples   = 4;      ///< The amount of position samples needed for a valid velocity
 
-/* Variable to hold the ID of the slung load */
-uint8_t slung_load_id;
-
 /** Connection timeout when not receiving **/
 #define CONNECTION_TIMEOUT          .5
 
@@ -549,17 +546,7 @@ gboolean timeout_transmit_callback(gpointer data) {
 */
 //########################################################################################################################
     // Transmit the REMOTE_GPS packet on the ivy bus - Custom packet (modified by Praveen jain)
-    if(rigidBodies[i].id == slung_load_id){
-      IvySendMsg("SLUNG_POS %d,%d,%d,%d,%d,%d,%d,%d", aircrafts[rigidBodies[i].id].ac_id,
-      rigidBodies[i].nMarkers,               //uint8 Number of markers (sv_num)
-      (int)(mpc_pos.x*1000.0),               //int32 X in mm - Optitrack coordinates
-      (int)(mpc_pos.y*1000.0),               //int32 Y in mm - Optitrack coordinates
-      (int)(mpc_pos.z*1000.0),               //int32 Z in mm - Optitrack coordinates
-      (int)(mpc_speed.x*1000.0), 	     //int32 velocity X in mm/s - Optitrack coordinates
-      (int)(mpc_speed.y*1000.0),             //int32 velocity Y in mm/s - Optitrack coordinates
-      (int)(mpc_speed.z*1000.0));            //int32 velocity Z in mm/s - optirack coordinates
-    } else {    
-      IvySendMsg("MPC_GPS %d,%d,%d,%d,%d,%d,%d,%d,%d", aircrafts[rigidBodies[i].id].ac_id,
+    IvySendMsg("MPC_GPS %d,%d,%d,%d,%d,%d,%d,%d,%d", aircrafts[rigidBodies[i].id].ac_id,
       rigidBodies[i].nMarkers,               //uint8 Number of markers (sv_num)
       (int)(mpc_pos.x*1000.0),                //int32 X in mm - Optitrack coordinates
       (int)(mpc_pos.y*1000.0),                //int32 Y in mm - Optitrack coordinates
@@ -568,7 +555,7 @@ gboolean timeout_transmit_callback(gpointer data) {
       (int)(mpc_speed.y*1000.0), //int32 velocity Y in mm/s - Optitrack coordinates
       (int)(mpc_speed.z*1000.0), //int32 velocity Z in mm/s - optirack coordinates
       (int)(mpc_heading*10000000.0));             
-    }
+
 //########################################################################################################################
 
     // Reset the velocity differentiator if we calculated the velocity
@@ -613,7 +600,7 @@ void print_help(char* filename) {
     "   -h, --help                Display this help\n"
     "   -v, --verbose <level>     Verbosity level 0-2 (0)\n\n"
 
-    "   -ac <rigid_id> <ac_id> <slung_load_id>    Use rigid ID for GPS of ac_id (multiple possible)\n\n"
+    "   -ac <rigid_id> <ac_id>    Use rigid ID for GPS of ac_id (multiple possible)\n\n"
 
     "   -multicast_addr <ip>      NatNet server multicast address (239.255.42.99)\n"
     "   -server <ip>              NatNet server IP address (255.255.255.255)\n"
@@ -664,8 +651,6 @@ static void parse_options(int argc, char** argv) {
 
       int rigid_id = atoi(argv[++i]);
       uint8_t ac_id = atoi(argv[++i]);
-      slung_load_id = atoi(argv[++i]); // ID of the slung load.
-      //printf("Slung Load ID is %d\n", slung_load_id);
 
       if(rigid_id >= MAX_RIGIDBODIES) {
         fprintf(stderr, "Rigid body ID must be less then %d (MAX_RIGIDBODIES)\n\n", MAX_RIGIDBODIES);
@@ -673,8 +658,6 @@ static void parse_options(int argc, char** argv) {
         exit(EXIT_FAILURE);
       }
       aircrafts[rigid_id].ac_id = ac_id;
-      aircrafts[slung_load_id].ac_id = ac_id; // Map the slung load ID to the aircraft ID
-      //printf("Aircraft ID set to %d\n", aircrafts[slung_load_id].ac_id);
       count_ac++;
     }
 

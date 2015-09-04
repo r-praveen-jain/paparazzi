@@ -82,9 +82,9 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "subsystems/abi.h"
 
 //bool control_cmd_flag = 0;
-//#ifndef USE_MPC_SDK
+#ifndef USE_MPC_SDK
 #define USE_MPC_SDK
-//#endif
+#endif
 
 #ifdef USE_MPC_SDK
 /*----------------------------------------------------------------------------*/
